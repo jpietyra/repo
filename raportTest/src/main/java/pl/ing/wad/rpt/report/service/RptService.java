@@ -17,9 +17,6 @@ public class RptService extends ReportBaseDAO {
 	}
 
 	public void startService() throws Exception {
-
-		String reportSql = "";
-		Number orderId = 0;
 		
 		//na potrzeby testow
 		{
@@ -32,26 +29,30 @@ public class RptService extends ReportBaseDAO {
 
 			Thread.sleep(2000);
 			
-			try {
-				Connection connection = getConnection();
+			try(Connection connection = getConnection()) {
+		
 				Statement st = connection.createStatement();
+				if(st == null){
+					throw new Exception ("Wystapil blad przygotowania zapytania!");
+				}
+				
 				System.out.println("Proba pobrania zamowienia z bazy danych.");
 				
 				//ResultSet rs = st.executeQuery("select * from RPT_ORDERED where rownum = 1");//pobieramy jeden wiersz do przetworzenia
 				ResultSet rs = st.executeQuery("select * from RPT_ORDERED where ORD_OST_ID = 1 and rownum = 1");//pobieramy jeden wiersz do przetworzenia
-				if(rs != null || rs.next()) {
-					reportSql = rs.getString("ORD_QUERY_LONG");
-					orderId = rs.getInt("ORD_ID");
+				if(rs != null && rs.next()) {
+					String reportSql = rs.getString("ORD_QUERY_LONG");
+					Number orderId = rs.getInt("ORD_ID");
 					String header = rs.getString("ORD_HEADER");
 					String generator = rs.getString("ORD_GENERATOR");
 					System.out.println("Przetwarzeanie zamowienia o id = " + orderId.toString());
 					st.executeUpdate("update RPT_ORDERED SET ORD_OST_ID = 4 WHERE ORD_ID = "  + orderId);
 					//st.executeUpdate("update RPT_ORDERED SET ORD_OST_ID = 4 WHERE ORD_ID = "  + orderId);
 					connection.commit();
-					if("DEFAULT".equals(generator) || generator == null ){
+					if(generator == null || generator.equals("DEFAULT") ){
 					new RptWorker().generateReport(reportSql,orderId, header);
 					}
-					else if("XFILES".equals(generator)){
+					else if(generator.equals("XFILES")){
 						new RptWorkerXfiles().generateReport(reportSql,orderId, header);
 					}
 				} else {

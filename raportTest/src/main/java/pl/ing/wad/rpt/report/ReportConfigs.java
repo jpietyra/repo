@@ -17,27 +17,30 @@ public class ReportConfigs {
 
     public void loadConfiguration(String filePath) throws Exception
     {
+    	System.out.println("Ladowanie konfiguracji...");
+    	
         try
         {
             configLoader.loadConfigFile(filePath);
             CONNECTION_STRING = configLoader.getElementValue("dburl");
-            //System.out.println(CONNECTION_STRING);
-            System.out.println("Konfiguracja zaladowana===============");
-            System.out.println("Ladowanie wartosci statycznych...");
+            System.out.println("Ladowanie konfiguracji...OK");
         }
         catch (Exception ex)
         {
             throw new Exception("Blad ladowania konfiguracji: "  + ex.toString());
         }
+        
+        System.out.println("Ladowanie wartosci statycznych...");
+        
         try
         {
             ReportStaticValues reportStaticValues = ReportStaticValues.getInstance();
-            reportStaticValues.load_app_parameters();
+            reportStaticValues.loadAppParameters();
             System.out.println("Ladowanie wartosci statycznych...OK");
         }
         catch (Exception ex)
         {
-            System.out.println("Blad ladowania wartosci statycznych:\n" + ex.toString());
+        	throw new Exception("Blad ladowania wartosci statycznych:\n" + ex.toString());
         }
     }
 

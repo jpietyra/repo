@@ -26,11 +26,6 @@ public class ReportStaticValues extends ReportBaseDAO {
         return super.getConnection();
     }
 
-    @Override
-    protected void closeConnection() throws Exception {
-        super.closeConnection();
-    }
-
     public static ReportStaticValues getInstance() {
         if (instance == null) {
             instance = new ReportStaticValues();
@@ -47,29 +42,19 @@ public class ReportStaticValues extends ReportBaseDAO {
         }
     }
 
-    public void load_app_parameters() throws Exception {
+    public void loadAppParameters() throws Exception {
 
-        Connection conn = getConnection();
-        Statement statement = null;
-        ResultSet rs = null;
+        try(Connection conn = getConnection();
+        		Statement statement = conn.createStatement(); 
+        		ResultSet rs =statement.executeQuery("SELECT PRM_NAME, PRM_VALUE FROM RPT_PARAMETERS")) {
 
-        try {
-            statement = conn.createStatement();
-            rs = statement.executeQuery("SELECT * FROM RPT_PARAMETERS");
-
-            while (rs.next()) {
-                PARMS_MAP.put(rs.getString("PRM_NAME"), rs.getString("PRM_VALUE"));
-            }
+        	if( rs != null){
+	            while (rs.next()) {
+	                PARMS_MAP.put(rs.getString("PRM_NAME"), rs.getString("PRM_VALUE"));
+	            }
+        	}
         } catch (Exception ex) {
             throw ex;
-        } finally {
-            try {
-                closeConnection();
-                conn = null;
-            } catch (Exception ex1) {
-                conn = null;
-                throw ex1;
-            }
-        }
+        } 
     }
 }

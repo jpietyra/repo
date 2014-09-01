@@ -1,7 +1,5 @@
 package pl.ing.wad.rpt.report.filenet;
 
-import java.io.FileInputStream;
-
 public class ContentEngineSession {
 
 
